@@ -16,4 +16,6 @@
 
 **October 9**
 1. [[Setup Samba]] file share and was able to connect with my Macbook (but not with work laptop) 
-2. 
+
+**October 10**
+1. Setup Docker
