@@ -18,4 +18,7 @@
 1. [[Setup Samba]] file share and was able to connect with my Macbook (but not with work laptop) 
 
 **October 10**
-1. Setup Docker
+1. Set up Docker [[2 - Installation]]
+
+**October 11**
+1. Changed main package update mirror from Cicku to mirror.rise.ph 
