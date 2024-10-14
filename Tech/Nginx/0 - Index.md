@@ -12,4 +12,5 @@
 #### Understanding
 - [Understanding Nginx Server and Location Block Selection](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
 - [Understanding the Nginx Configuration File](https://www.digitalocean.com/community/tutorials/understanding-the-nginx-configuration-file-structure-and-configuration-contexts)
+- [Request Processing](https://nginx.org/en/docs/http/request_processing.html)
 
