@@ -44,3 +44,6 @@ Unlike other operating systems, Linux has no concept of file extensions. Files c
 	- `/var/log` - important log files that records various system activity
 
 #### Symbolic links
+Symbolic links are like variables in that they store or point to a location in the file system rather than holding a value. In the same way that variables help your code become DRY, symbolic links also promote this principle. If you have a program that references a but want to include the filename, you have to track down every other resource that points to this file. You can instead just create a link from `foo` to `foo-2.6`, and everyone is happy. Now when you need to change the version, you just delete the symlink, and create a new one that makes `foo` point to `foo-2.7`.
+
+Symlinks are denoted by the letter `l` when long-listing directories.
