@@ -32,3 +32,9 @@ sudo usermod -aG docker $USER
 ```
 
 5. Restart the PC if still not working.
+
+6. Check Docker version (client and server), as well as Docker info
+```sh
+docker version
+docker info
+```
