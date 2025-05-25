@@ -31,4 +31,3 @@ docker run -it --name proxy nginx bash
 ```
 
 But once you exit the bash shell, the container stops. This is because the container only runs for as long as the command that started that container runs.
-
