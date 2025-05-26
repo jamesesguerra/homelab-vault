@@ -18,7 +18,7 @@
 3. It checks out the latest version of that image (if you don't specify a tag) and pulls it
 4. It creates a new container based on that image and prepares to start
 5. Gives it a virtual IP on a private network in docker engine
-6. Starts is using a command specified in the Dockerfile
+6. Starts it using a command specified in the Dockerfile
 
 #### Are containers like VMs?
 No, containers are really just restricted processes running on the OS kernel. This is why the executable files in those containers have to be built for the kernel they're running on. So when you think of images, think of them as always kernel (Linux / Windows) and architecture (amd64, arm64) specific.
