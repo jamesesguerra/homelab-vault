@@ -35,11 +35,29 @@
 - `COPY`
 	- copy files on the host into the container
 
+
+**sample Dockerfile:**
+```dockerfile
+FROM node:6-alpine #start from an image with node dependency and userland for downloading packages  
+
+RUN apk add --no-cache tini
+
+WORKDIR /usr/src/app
+
+COPY package.json . # copy dependencies to download
+
+RUN npm install && npm cache clean --force
+
+COPY . . # copy source code
+
+EXPOSE 3000
+
+CMD ["/sbin/tini", "--", "node" , "./bin/www"]
+```
 ### Useful commands
 - `history <image>` - view the image layers of a certain image 
 - `image inspect <image>` - view image metadata
 - `tag <image> <new-tag>` - tag images with new tags'
-
 
 ### Best Practices
 - each layer is based on the result of the one before it, therefore it would be useful to keep the stanzas that change the least in earlier in the Dockerfile, and the ones that change often later as changing an instruction would invalidate the layers that come after it
