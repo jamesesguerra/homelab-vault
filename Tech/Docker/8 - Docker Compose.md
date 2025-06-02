@@ -52,3 +52,65 @@ To remove images that the Docker compose built:
 ```sh
 docker compose down --rmi local
 ```
+
+#### A complete solution for dev, test, prod using Compose
+You can construct a docker compose solution that will handle starting containers according to the environment.
+
+First, you're going to create a "base" docker compose solution that will serve as the basis for all other compose files. This file has all the stuff they have in common.
+```yaml
+version: '3.9'
+
+services:
+	drupal:
+		image: custom-drupal:latest
+	
+	postgres:
+		image: postgres:14
+```
+
+For dev environment, you're going to create a `docker-compose.override.yml` file (filename is important) to "overlay" on new configuration on top of the base compose file.
+```yaml
+version: '3.9'
+
+services:
+	drupal:
+		build: .
+		ports:
+			- "8080:80"
+		volumes:
+			- drupal-modules:/var/www/html/modules
+			- drupal-profiles:/var/www/html/profiles
+			- drupal-sites:/var/www/html/sites
+			- ./themes:/var/www/html/themes
+
+	postgres:
+		environment:
+			- POSTGRES_PASSWORD_FILE=/run/secrets/psql-pw
+		secrets:
+			- psql-pw
+		volumes:
+			- drupal-data:/var/lib/postgresql/data
+
+volumes:
+	drupal-data:
+	drupal-modules:
+	drupal-profiles:
+	drupal-sites:
+	drupal-themes:
+
+secrets:
+	psql-pw:
+	file: psql-fake-password.txt
+```
+
+Then, in your CI solution (for testing the code with Jenkins, Github Actions etc.), you would have a separate `docker-compose.test.yml` file, and compose up with `-f`, making sure to specify the path to the base compose file first.
+```sh
+docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
+```
+
+Then, in production, because you wouldn't have docker compose there and would have Docker Swarm instead, you would output the configuration of the combination of the base and your prod file to an output file for Swarm Stack to deploy.
+```sh
+docker compose -f docker-compose.yml -f docker-compose.prod.yml config > output.yml
+docker stack deploy -c output.yml my-stack
+```
+

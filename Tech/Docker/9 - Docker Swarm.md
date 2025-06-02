@@ -87,3 +87,58 @@ Even though only one node might be running a certain task of a service, other no
 Routing mesh acts as a load balancer that balances Swarm Services across their Tasks using a virtual IP. This also means that if you publish a port on one node, all nodes will listen to the port.
 
 ![[routing-mesh-network.png]]
+
+The Routing Mesh ingress network is also what makes it possible for you to run several copies of a container that seem to be "bound" to the same host port. In reality, only the Swarm ingress network is bound to the host port, while the containers themselves are on an overlay network wherein routing mesh can distribute the load. It distributes the load in a connection-based manner, meaning the container will handle traffic as long as the host receives it. To do true round-robin, you have to use an external proxy to load balance.
+
+#### Docker Swarm Stacks
+Swarm Stacks are just Docker Compose for services--they allow you to specify declaratively what your services are in just one file, plus any volumes, networks, and secrets that need to be deployed with them.
+
+The main difference is that when Docker Swarm uses a compose file, it will ignore the `build` section because ideally in production scenarios, it shouldn't be used to build images and should only pull them. You can then specify an additional `deploy` section to set Swarm-specific configuration.
+
+```yaml
+deploy:
+	replicas: 1
+	update_config: # how do you want updates to roll-out?
+		parallelism: 2
+		delay: 10s
+	restart_policy: # what happens when the container fails?
+		condition: on-failure
+	placement:
+		constraints: [node.role === manager] # make sure its deployed on a specific node
+```
+
+To deploy the stack:
+```sh
+docker stack deploy -c <filename.yml> <stack-name>
+```
+#### Swarm Secrets
+- secrets are only stored on disk on manager nodes
+- they are assigned to services, and only containers in the assigned services can see them
+
+You can create a secret either from a plaintext file, or by passing the secret value in the command line:
+```sh
+docker secret create <secret-key> <filename-containing-secret-value>
+echo "mypassword" | docker secret create <secret-key> -
+```
+
+To assign the secret to a service, use the `--secret` option for each secret key. Assigning secrets creates a file on the containers inside that service so that they can access the secret value
+```sh
+docker service create --name psql --secret psql_user --secret psql_pass -e POSTGRES_PASSWORD_FILE=/run/secrets/psql_pass -e POSTGRES_USER_FILE=/run/secrets/psql_user pos
+tgres
+```
+
+#### Rolling Updates
+To scale a service:
+```sh
+docker service scale web=5 api=3
+```
+To apply an image update / downgrade:
+```sh
+docker service update --image nginx:1.13.6 web
+```
+To publish / unpublish ports:
+```sh
+ocker service update --publish-rm 8088 --publish-add 9090:80 web
+```
+
+

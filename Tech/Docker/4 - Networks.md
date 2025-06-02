@@ -20,3 +20,11 @@
 - Docker daemon has a built-in DNS server that containers use by default
 - if you create a new network, you can ping other containers in that network just by their container name (hostname
 	- the bridge server doesn't have this built-in DNS server by default
+
+##### DNS Round Robin
+Docker's internal DNS sort of does a round robin when you register the same alias for 2 containers. For example, starting 2 elasticsearch containers:
+```sh
+docker run -d --net round-robin --net-alias search elasticsearch
+docker run -d --net round-robin --net-alias search elasticsearch
+```
+Now, when you go into a container and execute `nslookup search`, it will give you the records that point to the IP addresses of the 2 containers. So now when you curl `localhost:9200`, either of the 2 containers may answer.
