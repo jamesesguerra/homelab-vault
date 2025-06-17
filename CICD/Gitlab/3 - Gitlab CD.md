@@ -83,4 +83,13 @@ netlify_staging:
 It's also a good idea to add a manual deploy step before deploying to production. This makes it so that you can verify stuff manually before committing to the production deployment.
 
 ```yaml
+netlify_prod:
+  image: node:22-alpine
+  stage: deploy_prod
+  when: manual
 ```
+
+#### The difference between Continuous Delivery and Continuous Deployment
+The main difference is:
+- **continuous delivery** - code / updates that passes tests are prepared for release to production, but still need a manual step (approval) in order to be released
+- **continuous deployment** - code / updates that passes test and are deployed to an environment even without a manual approval
