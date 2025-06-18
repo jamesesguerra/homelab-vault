@@ -84,5 +84,3 @@ Git workflows exist to safeguard the `main` or in some cases, `development` bran
 - ensure that no one can push / merge directly to the main branch
 - know the dependencies between jobs; put jobs that are most likely to fail first so that you'll know right away if you should keep going
 	- a good guideline is to put jobs that have similar execution times within the same stage in the pipeline
-
-![[Pasted image 20250610190309.png]]

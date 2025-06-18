@@ -7,7 +7,7 @@ Nginx consists of modules which are controlled by directives specified in the co
 	- if it can have other directives inside braces, it's called a *context*
 
 Directives that are placed in the configuration file outside any contexts are considered to be in the **main** context.
-```sh
+```nginx
 	events  { }
 
 	http { 

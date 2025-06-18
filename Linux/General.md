@@ -1,0 +1,3 @@
+- https://www.linuxfromscratch.org/lfs/view/systemd/
+- https://beej.us/guide/bgnet/
+- https://www.feistyduck.com/library/openssl-cookbook/online/
