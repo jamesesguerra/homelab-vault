@@ -39,6 +39,16 @@ netlify:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 ```
 
+Or you can restrict a job to run only if the branch isn't the main branch. This is useful for running jobs to deploy review URLs only on merge request pipelines.
+``
+```yaml
+netlify_review:
+  image: node:22-alpine
+  stage: deploy_review
+  rules:
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+```
+
 #### before_script & after_script
 The `before_script` configuration is useful for specifying commands to prepare the environment before the main job script runs. Whereas `after_script` is useful for cleanup after the job completes. Practically, it makes no difference in the execution of the script--it's primarily for sectioning the job script in a more semantic way.
 
@@ -93,3 +103,54 @@ netlify_prod:
 The main difference is:
 - **continuous delivery** - code / updates that passes tests are prepared for release to production, but still need a manual step (approval) in order to be released
 - **continuous deployment** - code / updates that passes test and are deployed to an environment even without a manual approval
+
+#### Branch vs Merge Request Pipelines
+Branch pipelines run on push for every branch, regardless if that branch is used for a merge request. Ideally, you only want to run the pipeline on merge requests if the branch isn't main. In short, you only run the pipeline:
+1. **when a merge request is created**
+2. **when changes are pushed to the main branch**
+
+The way to do this is with the `workflow` configuration:
+
+```yaml
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+```
+
+#### Dynamic Environments - Publishing Review Environment URLs
+For technical people, it's easy to go into the logs and look for the `deploy_url` key for the review environment to see what the changes are live. But it's not always obvious, so to make it easier to view the URL for review environments, you can publish a report of the environment and enter the review URL so that it would be visible from the merge request itself.
+
+```yaml
+netlify_review:
+  image: node:22-alpine
+  stage: deploy_review
+  rules:
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+  environment:
+    name: preview/$CI_COMMIT_REF_SLUG 
+    url: $REVIEW_URL
+  before_script:
+    - npm install -g netlify-cli@20.1.1
+    - apk add curl jq
+  script:
+    - netlify deploy --dir build --json | tee deploy-result.json
+    - REVIEW_URL=$(jq -r '.deploy_url' deploy-result.json)
+    - echo "REVIEW_URL=$REVIEW_URL" > deploy.env
+  artifacts:
+    reports:
+      dotenv: deploy.env
+```
+
+#### Static Environments
+You should also define static environments so that their URLs are also easily accessible from GitLab. You can then view environments on GitLab in the `Operate` > `Environments` section.
+
+```yaml
+netlify_prod:
+  environment:
+    name: production
+    url: https://jamesesg-learn-gitlab.netlify.app/
+  script:
+    - netlify deploy --prod --dir build
+    - curl $CI_ENVIRONMENT_URL | grep 'GitLab'
+```
